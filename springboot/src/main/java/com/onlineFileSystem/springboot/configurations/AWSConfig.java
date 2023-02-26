@@ -1,33 +1,16 @@
 package com.onlineFileSystem.springboot.configurations;
 
 import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.context.annotation.Bean;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
 
 @Configurable
 public class AWSConfig {
 
-    public AWSCredentials credentials() {
-        AWSCredentials credentials = 
-            new BasicAWSCredentials("AKIAR2V7ANP3IQHJA6BV", "JPRhVC0zB/26nvUHYK86hk25fADoLgA8XwBkSSVS");
-
+    public AwsCredentials credentials() {
+        AwsCredentials credentials = 
+            AwsBasicCredentials.create("", "");
         return credentials;
-    }
-
-    @Bean
-    public AmazonS3 amazonS3() {
-        AmazonS3 s3Client = AmazonS3ClientBuilder
-            .standard()
-            .withCredentials(new AWSStaticCredentialsProvider(credentials()))
-            .withRegion(Regions.US_EAST_1)
-            .build();
-
-        return s3Client;
     }
 }
