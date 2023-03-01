@@ -16,7 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-public class MyWebSecurityConfiguration {
+public class MyWebSecurityConfig {
 
     @Autowired
     UserManager userManager;
@@ -25,10 +25,12 @@ public class MyWebSecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.httpBasic().and()
                 .authorizeHttpRequests()
+                .requestMatchers(HttpMethod.POST, "/users/**").authenticated()
                 .requestMatchers(HttpMethod.GET).authenticated()
-                .requestMatchers(HttpMethod.POST).permitAll()
                 .requestMatchers(HttpMethod.PUT).authenticated()
-                .requestMatchers(HttpMethod.PATCH).authenticated().and()
+                .requestMatchers(HttpMethod.PATCH).authenticated()
+                .requestMatchers(HttpMethod.POST, "/register").permitAll()
+                .requestMatchers(HttpMethod.POST, "/error").permitAll().and()
                 .csrf()
                 .ignoringRequestMatchers("/**");
         return http.build();

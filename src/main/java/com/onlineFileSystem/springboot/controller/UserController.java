@@ -35,7 +35,7 @@ public class UserController {
     }
 
     //create new user
-    @PostMapping("/users")
+    @PostMapping("/register")
     public User postUser(@RequestBody Map<String, String> body){
         //check required field
         String userName = body.get("userName");

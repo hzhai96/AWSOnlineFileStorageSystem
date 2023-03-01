@@ -1,7 +1,9 @@
 # AWSOnlineFileStorageSystem
 Please note: Current AWS access key and secret key has been disabled for security reason. Will keep you update.
 ## DEPENDENCY
-### Mysql
+### Run Mysql using AWS RDS
+Add inbound rule with your machine IP on the RDS security page.
+### Run Mysql locally
 Run Mysql with docker
 ```bash
 // For M1 Macs

@@ -8,8 +8,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.onlineFileSystem.springboot.clients.AwsS3Client;
-
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.exception.SdkClientException;
@@ -31,10 +31,11 @@ import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 
-
+@Service
 public class S3Service {
     private final String bucketName = "coen241projectfiles";
-    private S3Client client = new AwsS3Client().client();
+    @Autowired
+    S3Client client;
 
     public void uploadOject(String key, String type, InputStream stream) throws S3Exception, AwsServiceException, SdkClientException, IOException {
         PutObjectRequest request = PutObjectRequest.builder()

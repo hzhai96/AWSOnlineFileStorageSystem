@@ -1,14 +1,13 @@
-package com.onlineFileSystem.springboot.clients;
+package com.onlineFileSystem.springboot.configurations;
 
 import org.springframework.context.annotation.Bean;
-
-import com.onlineFileSystem.springboot.configurations.AWSConfig;
-
+import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
-public class AwsS3Client {
+@Configuration
+public class S3Config {
     public AWSConfig config = new AWSConfig();
 
     @Bean

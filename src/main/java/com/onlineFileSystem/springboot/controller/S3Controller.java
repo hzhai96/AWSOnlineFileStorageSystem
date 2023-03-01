@@ -2,7 +2,7 @@ package com.onlineFileSystem.springboot.controller;
 
 import java.io.InputStream;
 import java.util.List;
-
+import com.onlineFileSystem.springboot.common.AuthenticationUtil;
 import org.json.CDL;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -12,20 +12,21 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.onlineFileSystem.springboot.services.S3Service;
-
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 @RestController
+@RequestMapping("/users")
 public class S3Controller {
     
     @Autowired
     S3Service s3Service;
 
-    @GetMapping("/files")
-    public String listFiles(@RequestParam String path) {
+    @GetMapping("/{userName}/files")
+    public String listFiles(@RequestParam String path, @PathVariable String userName) {
+        AuthenticationUtil.authorizeUser(userName);
         String jsonString = "";
         JSONObject jo = new JSONObject();
         JSONArray ja = new JSONArray();
@@ -48,8 +49,9 @@ public class S3Controller {
         return jo.toString();
     }
 
-    @GetMapping("/shared")
-    public String listSharedFiles(@RequestParam String key) {
+    @GetMapping("/{userName}/shared")
+    public String listSharedFiles(@RequestParam String key,  @PathVariable String userName) {
+        AuthenticationUtil.authorizeUser(userName);
         String jsonString = "";
         JSONObject jo = new JSONObject();
         JSONArray ja = new JSONArray();
@@ -73,8 +75,9 @@ public class S3Controller {
         return jo.toString();
     }
 
-    @PostMapping("/uploadFile")
-    public String uploadFile(@RequestParam MultipartFile file, @RequestParam String key) {
+    @PostMapping("/{userName}/uploadFile")
+    public String uploadFile(@RequestParam MultipartFile file, @RequestParam String key, @PathVariable String userName) {
+        AuthenticationUtil.authorizeUser(userName);
         JSONObject jo = new JSONObject();
         String type = file.getContentType();
 
@@ -90,8 +93,9 @@ public class S3Controller {
         return jo.toString();
     }
 
-    @PostMapping("/newFile")
-    public String uploadFile(@RequestParam String type, @RequestParam String key) {
+    @PostMapping("/{userName}/newFile")
+    public String newFile(@RequestParam String type, @RequestParam String key, @PathVariable String userName) {
+        AuthenticationUtil.authorizeUser(userName);
         JSONObject jo = new JSONObject();
 
         try {
@@ -106,8 +110,9 @@ public class S3Controller {
         return jo.toString();
     }
 
-    @PostMapping("/createFolder")
-    public String uploadFile(@RequestParam String key) {
+    @PostMapping("/{userName}/createFolder")
+    public String createFolder(@RequestParam String key, @PathVariable String userName) {
+        AuthenticationUtil.authorizeUser(userName);
         JSONObject jo = new JSONObject();
 
         try {
@@ -122,8 +127,9 @@ public class S3Controller {
         return jo.toString();
     }
 
-    @PostMapping("/rename")
-    public String renameFile(@RequestParam String key, @RequestParam String newKey) {
+    @PostMapping("/{userName}/rename")
+    public String renameFile(@RequestParam String key, @RequestParam String newKey, @PathVariable String userName) {
+        AuthenticationUtil.authorizeUser(userName);
         JSONObject jo = new JSONObject();
 
         try {
@@ -138,8 +144,9 @@ public class S3Controller {
         return jo.toString();
     }
 
-    @PostMapping("/share/{sender}/{receiver}")
+    @PostMapping("/{sender}/share/{receiver}")
     public String shareFile(@PathVariable String sender, @RequestParam String senderKey, @PathVariable String receiver) {
+        AuthenticationUtil.authorizeUser(sender);
         JSONObject jo = new JSONObject();
 
         try {
