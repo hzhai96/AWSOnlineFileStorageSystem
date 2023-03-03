@@ -8,6 +8,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -16,39 +17,29 @@ import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectAttributesRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectAttributesResponse;
-import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetObjectResponse;
-import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
-import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
-import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
-import software.amazon.awssdk.services.s3.model.S3Object;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 
 @Service
+@Slf4j
 public class S3Service {
     private final String bucketName = "coen241projectfiles";
     @Autowired
     S3Client client;
 
-    public void uploadOject(String key, String type, InputStream stream) throws S3Exception, AwsServiceException, SdkClientException, IOException {
+    public void uploadObject(String key, String type, InputStream stream) throws S3Exception, AwsServiceException, SdkClientException, IOException {
         PutObjectRequest request = PutObjectRequest.builder()
             .bucket(bucketName)
             .key(key)
             .contentType(type)
             .build();
 
-        client.putObject(request, RequestBody.fromInputStream(stream, stream.available()));
-
-        WaiterResponse<HeadObjectResponse> waiterResponse = createWaiter(key);
-
-        waiterResponse.matched().response().ifPresent(System.out::println);
+        try{
+            client.putObject(request, RequestBody.fromInputStream(stream, stream.available()));
+        }catch (S3Exception e){
+            log.error("failed to upload file {}", e.getMessage());
+            throw e;
+        }
     }
 
     public void createFoler(String key) throws S3Exception, AwsServiceException, SdkClientException, IOException {
@@ -168,7 +159,7 @@ public class S3Service {
             .key(key)
             .build();
 
-        WaiterResponse<HeadObjectResponse> waiterResponse = waiter.waitUntilObjectNotExists(waitRequest);
+        WaiterResponse<HeadObjectResponse> waiterResponse = waiter.waitUntilObjectExists(waitRequest);
 
         return waiterResponse;
     }
