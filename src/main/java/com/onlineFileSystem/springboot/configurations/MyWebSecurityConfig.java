@@ -23,16 +23,17 @@ public class MyWebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.httpBasic().and()
+        http.httpBasic()
+                .and()
                 .authorizeHttpRequests()
                 .requestMatchers(HttpMethod.POST, "/users/**").authenticated()
                 .requestMatchers(HttpMethod.GET).authenticated()
                 .requestMatchers(HttpMethod.PUT).authenticated()
                 .requestMatchers(HttpMethod.PATCH).authenticated()
                 .requestMatchers(HttpMethod.POST, "/register").permitAll()
-                .requestMatchers(HttpMethod.POST, "/error").permitAll().and()
-                .csrf()
-                .ignoringRequestMatchers("/**");
+                .requestMatchers(HttpMethod.POST, "/error").permitAll()
+                .and()
+                .csrf().disable();
         return http.build();
     }
 
