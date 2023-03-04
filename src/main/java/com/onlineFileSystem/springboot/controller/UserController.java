@@ -13,6 +13,7 @@ import java.util.Map;
 
 
 @RestController
+@CrossOrigin("http://localhost:3000")
 public class UserController {
 
     @Autowired
@@ -30,6 +31,7 @@ public class UserController {
     //remove this auth after logout
     @GetMapping("/users/{userName}")
     public User getUser(@PathVariable String userName){
+        System.out.println("*******");
         AuthenticationUtil.authorizeUser(userName);
         return userManager.getUser(userName);
     }

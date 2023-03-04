@@ -4,6 +4,7 @@ Please note: Current AWS access key and secret key has been disabled for securit
 # Run in Docker Container
 Build:
 ```bash
+$ mvn clean package
 $ docker build -t onlinefilesystem .     
 ```
 Run in port 8080:
@@ -14,5 +15,5 @@ $ docker run -p8080:8080 onlinefilesystem:latest
 ### Run Mysql using AWS RDS
 Add inbound rule with your machine IP on the RDS security page.
 - DB Username: admin
-- DB Password:admin12345
+- DB Password: admin12345
 
