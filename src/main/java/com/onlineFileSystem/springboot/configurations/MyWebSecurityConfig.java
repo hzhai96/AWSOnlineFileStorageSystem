@@ -33,7 +33,7 @@ public class MyWebSecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/error").permitAll()
                 .and()
-                .csrf().disable();
+                .csrf().disable().cors();
         return http.build();
     }
 
