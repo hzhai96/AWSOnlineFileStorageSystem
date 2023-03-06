@@ -120,6 +120,8 @@ public class S3Service {
     public void shareObject(String sender, String senderKey, String receiver) throws S3Exception, AwsServiceException, SdkClientException, IOException {
         String receiverSharedKey = "/" + receiver + "/shared/contents.txt";
         String senderSharingKey = "/" + sender + "/sharing/contetns.txt";
+        String[] dir = senderKey.split("/");
+        String name, type;
 
         GetObjectRequest receiverGetRequest = GetObjectRequest.builder()
             .bucket(bucketName)
@@ -144,9 +146,18 @@ public class S3Service {
             .key(senderKey)
             .build();
 
+        if (dir[dir.length - 1] == "") {
+            name = dir[dir.length - 2];
+            type = "foler";
+        }
+        else {
+            name = dir[dir.length - 1];
+            type = "file";
+        }
+
         GetObjectAttributesResponse getObjectAttributesResponse = client.getObjectAttributes(attributesRequest);
         String size = String.valueOf(getObjectAttributesResponse.objectSize());
-        String newData = senderKey + "," + size + "\n";
+        String newData = senderKey + "," + name + "," + size + "," + type + "\n";
 
         updateShareInfomation(receiverGetRequest, receiverPutRequest, newData);
         updateShareInfomation(senderGetRequest, senderPutRequest, newData);

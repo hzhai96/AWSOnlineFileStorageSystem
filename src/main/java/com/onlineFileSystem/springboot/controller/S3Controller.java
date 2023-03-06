@@ -37,12 +37,26 @@ public class S3Controller {
         JSONArray ja = new JSONArray();
 
         ja.put("key");
+        ja.put("name");
         ja.put("size");
+        ja.put("type");
 
         try {
             List<S3Object> objects = s3Service.listObjects(path);
             for (S3Object object : objects) {
-                jsonString += object.key() + "," + String.valueOf(object.size()) + "\n";
+                String type, name;
+                String[] dir = object.key().split("/");
+
+                if (dir[dir.length - 1] == "") {
+                    name = dir[dir.length - 2];
+                    type = "foler";
+                }
+                else {
+                    name = dir[dir.length - 1];
+                    type = "file";
+                }
+
+                jsonString += object.key() + "," + name + "," + String.valueOf(object.size()) + "," + type + "\n";
             }
             jo.put("status", "success");
             jo.put("content", CDL.toJSONArray(ja, jsonString).toString());
@@ -99,7 +113,7 @@ public class S3Controller {
         return jo.toString();
     }
 
-    @PostMapping("/{userName}/newFile")
+    @PostMapping("/{userName}/createFile")
     public String newFile(@RequestParam String type, @RequestParam String key, @PathVariable String userName) {
         AuthenticationUtil.authorizeUser(userName);
         JSONObject jo = new JSONObject();
