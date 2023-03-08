@@ -2,6 +2,8 @@ package com.onlineFileSystem.springboot.controller;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
+
 import com.onlineFileSystem.springboot.common.AuthenticationUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.json.CDL;
@@ -30,11 +32,12 @@ public class S3Controller {
     S3Service s3Service;
 
     @GetMapping("/{userName}/files")
-    public String listFiles(@RequestParam String path, @PathVariable String userName) {
+    public String listFiles(@PathVariable String userName, @RequestBody Map<String, String> body) {
         AuthenticationUtil.authorizeUser(userName);
         String jsonString = "";
         JSONObject jo = new JSONObject();
         JSONArray ja = new JSONArray();
+        String path = body.get("path");
 
         ja.put("key");
         ja.put("name");
@@ -59,7 +62,7 @@ public class S3Controller {
                 jsonString += object.key() + "," + name + "," + String.valueOf(object.size()) + "," + type + "\n";
             }
             jo.put("status", "success");
-            jo.put("content", CDL.toJSONArray(ja, jsonString).toString());
+            jo.put("content", new JSONObject("result", CDL.toJSONArray(ja, jsonString).toString()).toString());
         } catch (Exception e) {
             jo.put("status", "error");
             jo.put("message", "Error when listing files: " + e.getMessage());
@@ -69,11 +72,12 @@ public class S3Controller {
     }
 
     @GetMapping("/{userName}/shared")
-    public String listSharedFiles(@RequestParam String key,  @PathVariable String userName) {
+    public String listSharedFiles(@PathVariable String userName, @RequestBody Map<String, String> body) {
         AuthenticationUtil.authorizeUser(userName);
         String jsonString = "";
         JSONObject jo = new JSONObject();
         JSONArray ja = new JSONArray();
+        String key = body.get("key");
 
         ja.put("key");
         ja.put("size");
@@ -85,7 +89,7 @@ public class S3Controller {
                 jsonString += information[0] + "," + information[1] + " \n";
             }
             jo.put("status", "success");
-            jo.put("content", CDL.toJSONArray(ja, jsonString).toString());
+            jo.put("content", new JSONObject(CDL.toJSONArray(ja, jsonString).toString()).toString());
         } catch (Exception e) {
             jo.put("status", "error");
             jo.put("message", "Error when listing files: " + e.getMessage());
@@ -95,9 +99,10 @@ public class S3Controller {
     }
 
     @PostMapping("/{userName}/uploadFile")
-    public String uploadFile(@RequestParam(name = "file") MultipartFile file, @RequestParam(name = "key") String key, @PathVariable String userName) {
+    public String uploadFile(@RequestParam(name = "file") MultipartFile file, @PathVariable String userName, @RequestBody Map<String, String> body) {
         log.info("Uploading file");
         AuthenticationUtil.authorizeUser(userName);
+        String key = body.get("key");
         JSONObject jo = new JSONObject();
         String type = file.getContentType();
 
@@ -114,9 +119,11 @@ public class S3Controller {
     }
 
     @PostMapping("/{userName}/createFile")
-    public String newFile(@RequestParam String type, @RequestParam String key, @PathVariable String userName) {
+    public String newFile(@PathVariable String userName, @RequestBody Map<String, String> body) {
         AuthenticationUtil.authorizeUser(userName);
         JSONObject jo = new JSONObject();
+        String key = body.get("key");
+        String type = body.get("type");
 
         try {
             s3Service.uploadObject(key, type, InputStream.nullInputStream());
@@ -131,9 +138,10 @@ public class S3Controller {
     }
 
     @PostMapping("/{userName}/createFolder")
-    public String createFolder(@RequestParam String key, @PathVariable String userName) {
+    public String createFolder(@PathVariable String userName, @RequestBody Map<String, String> body) {
         AuthenticationUtil.authorizeUser(userName);
         JSONObject jo = new JSONObject();
+        String key = body.get("key");
 
         try {
             s3Service.createFoler(key);
@@ -148,9 +156,11 @@ public class S3Controller {
     }
 
     @PostMapping("/{userName}/rename")
-    public String renameFile(@RequestParam String key, @RequestParam String newKey, @PathVariable String userName) {
+    public String renameFile(@PathVariable String userName, @RequestBody Map<String, String> body) {
         AuthenticationUtil.authorizeUser(userName);
         JSONObject jo = new JSONObject();
+        String key = body.get("key");
+        String newKey = body.get("newKey");
 
         try {
             s3Service.renameObject(key, newKey);
@@ -165,9 +175,10 @@ public class S3Controller {
     }
 
     @PostMapping("/{sender}/share/{receiver}")
-    public String shareFile(@PathVariable String sender, @RequestParam String senderKey, @PathVariable String receiver) {
+    public String shareFile(@PathVariable String sender, @PathVariable String receiver, @RequestBody Map<String, String> body) {
         AuthenticationUtil.authorizeUser(sender);
         JSONObject jo = new JSONObject();
+        String senderKey = body.get("senderKey");
 
         try {
             s3Service.shareObject(sender, senderKey, receiver);
