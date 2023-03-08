@@ -89,7 +89,7 @@ public class S3Controller {
                 jsonString += information[0] + "," + information[1] + " \n";
             }
             jo.put("status", "success");
-            jo.put("content", new JSONObject(CDL.toJSONArray(ja, jsonString).toString()).toString());
+            jo.put("content", new JSONObject("result", CDL.toJSONArray(ja, jsonString).toString()).toString());
         } catch (Exception e) {
             jo.put("status", "error");
             jo.put("message", "Error when listing files: " + e.getMessage());
