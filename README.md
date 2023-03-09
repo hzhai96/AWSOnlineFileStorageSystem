@@ -11,9 +11,17 @@ Run in port 8080:
 ```bash
 $ docker run -p8080:8080 onlinefilesystem:latest     
 ```
+
+# Set up AWS Credentials
+Set up environment variables:
+```bash
+$ export AWS_ACCESS_KEY_I=<aws access key>
+$ export AWS_SECRET_ACCESS_KEY=<aws secret key>
+```
+Set up in start up file for future use.
+
 ## DEPENDENCY
 ### Run Mysql using AWS RDS
 Add inbound rule with your machine IP on the RDS security page.
 - DB Username: admin
 - DB Password: admin12345
-
