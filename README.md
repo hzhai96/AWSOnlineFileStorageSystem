@@ -9,7 +9,7 @@ $ docker build -t onlinefilesystem .
 ```
 Run in port 8080:
 ```bash
-$ docker run -p8080:8080 onlinefilesystem:latest     
+$ docker run -e AWS_ACCESS_KEY_ID=<aws access key> -e AWS_SECRET_ACCESS_KEY=<aws secret key> -p8080:8080 onlinefilesystem:latest     
 ```
 
 # Set up AWS Credentials
