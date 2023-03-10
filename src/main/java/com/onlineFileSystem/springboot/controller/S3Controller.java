@@ -1,6 +1,7 @@
 package com.onlineFileSystem.springboot.controller;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -32,52 +33,53 @@ public class S3Controller {
     S3Service s3Service;
 
     @GetMapping("/{userName}/files")
-    public String listFiles(@PathVariable String userName, @RequestBody Map<String, String> body) {
+    public String listFiles(@PathVariable String userName, @RequestParam String path) {
         AuthenticationUtil.authorizeUser(userName);
         String jsonString = "";
         JSONObject jo = new JSONObject();
+        JSONObject resultObject = new JSONObject();
         JSONArray ja = new JSONArray();
-        String path = body.get("path");
 
+        System.out.println(path);
+        try {
+            System.out.println(java.net.URLDecoder.decode(path, StandardCharsets.UTF_8.name()));
+        }catch(Exception e) {
+
+        }
+       
         ja.put("key");
-        ja.put("name");
         ja.put("size");
         ja.put("type");
 
         try {
             List<S3Object> objects = s3Service.listObjects(path);
             for (S3Object object : objects) {
-                String type, name;
-                String[] dir = object.key().split("/");
+                String key = object.key(), type;
 
-                if (dir[dir.length - 1] == "") {
-                    name = dir[dir.length - 2];
-                    type = "foler";
-                }
-                else {
-                    name = dir[dir.length - 1];
-                    type = "file";
-                }
-
-                jsonString += object.key() + "," + name + "," + String.valueOf(object.size()) + "," + type + "\n";
+                if (object.key().equals(path)) continue;
+                if (key.charAt(key.length() - 1) == '/') type = "folder";
+                else type = "file";
+                
+                jsonString += object.key() + "," + String.valueOf(object.size()) + "," + type + "\n";
             }
             jo.put("status", "success");
-            jo.put("content", new JSONObject("result", CDL.toJSONArray(ja, jsonString).toString()).toString());
+            jo.put("content", CDL.toJSONArray(ja, jsonString));
         } catch (Exception e) {
             jo.put("status", "error");
             jo.put("message", "Error when listing files: " + e.getMessage());
         }
 
+        resultObject.put("result", jo);
+
         return jo.toString();
     }
 
     @GetMapping("/{userName}/shared")
-    public String listSharedFiles(@PathVariable String userName, @RequestBody Map<String, String> body) {
+    public String listSharedFiles(@PathVariable String userName, @RequestParam String key) {
         AuthenticationUtil.authorizeUser(userName);
         String jsonString = "";
         JSONObject jo = new JSONObject();
         JSONArray ja = new JSONArray();
-        String key = body.get("key");
 
         ja.put("key");
         ja.put("size");
