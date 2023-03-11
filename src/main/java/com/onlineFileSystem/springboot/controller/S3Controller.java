@@ -1,7 +1,6 @@
 package com.onlineFileSystem.springboot.controller;
 
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -11,7 +10,6 @@ import org.json.CDL;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import com.onlineFileSystem.springboot.services.S3Service;
-import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 @RestController
@@ -39,13 +36,6 @@ public class S3Controller {
         JSONObject jo = new JSONObject();
         JSONObject resultObject = new JSONObject();
         JSONArray ja = new JSONArray();
-
-        System.out.println(path);
-        try {
-            System.out.println(java.net.URLDecoder.decode(path, StandardCharsets.UTF_8.name()));
-        }catch(Exception e) {
-
-        }
        
         ja.put("key");
         ja.put("size");
@@ -101,10 +91,9 @@ public class S3Controller {
     }
 
     @PostMapping("/{userName}/uploadFile")
-    public String uploadFile(@RequestParam(name = "file") MultipartFile file, @PathVariable String userName, @RequestBody Map<String, String> body) {
+    public String uploadFile(@RequestParam(name = "file") MultipartFile file, @RequestParam(name = "key") String key, @PathVariable String userName) {
         log.info("Uploading file");
         AuthenticationUtil.authorizeUser(userName);
-        String key = body.get("key");
         JSONObject jo = new JSONObject();
         String type = file.getContentType();
 
@@ -113,8 +102,8 @@ public class S3Controller {
             jo.put("status", "success");
             jo.put("message", "The file has been successfully uploaded.");
         } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+            jo.put("status", "error");
+            jo.put("message", "Error when uploading file: " + e.getMessage());
         }
 
         return jo.toString();
