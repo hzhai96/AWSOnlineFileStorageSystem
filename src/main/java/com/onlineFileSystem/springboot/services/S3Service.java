@@ -8,24 +8,34 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.waiters.S3Waiter;
 
 @Service
-@Slf4j
 public class S3Service {
     private final String bucketName = "coen241projectfiles";
     @Autowired
     S3Client client;
+
+    public byte[] getObject(String key) throws S3Exception, AwsServiceException, SdkClientException {
+        GetObjectRequest request = GetObjectRequest.builder()
+            .bucket(bucketName)
+            .key(key)
+            .build();
+
+        ResponseBytes<GetObjectResponse> response = client.getObject(request, ResponseTransformer.toBytes());
+        
+        return response.asByteArray();
+    }
 
     public void uploadObject(String key, String type, InputStream stream) throws S3Exception, AwsServiceException, SdkClientException, IOException {
         PutObjectRequest request = PutObjectRequest.builder()
@@ -34,12 +44,7 @@ public class S3Service {
             .contentType(type)
             .build();
 
-        try{
-            client.putObject(request, RequestBody.fromInputStream(stream, stream.available()));
-        }catch (S3Exception e){
-            log.error("failed to upload file {}", e.getMessage());
-            throw e;
-        }
+        client.putObject(request, RequestBody.fromInputStream(stream, stream.available()));
     }
 
     public void createFoler(String key) throws S3Exception, AwsServiceException, SdkClientException, IOException {
@@ -76,11 +81,11 @@ public class S3Service {
             .destinationKey(destinationKey)
             .build();
         
-            client.copyObject(request);
+        client.copyObject(request);
 
-            WaiterResponse<HeadObjectResponse> waiterResponse = createWaiter(destinationKey);
+        WaiterResponse<HeadObjectResponse> waiterResponse = createWaiter(destinationKey);
 
-            waiterResponse.matched().response().ifPresent(System.out::println);
+        waiterResponse.matched().response().ifPresent(System.out::println);
     }
 
     public void renameObject(String key, String newKey) throws S3Exception, AwsServiceException, SdkClientException {
