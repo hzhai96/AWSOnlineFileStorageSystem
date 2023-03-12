@@ -1,6 +1,8 @@
 package com.onlineFileSystem.springboot.controller;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -115,9 +117,18 @@ public class S3Controller {
         JSONObject jo = new JSONObject();
         String key = body.get("key");
         String type = body.get("type");
+        String content = body.get("data");
+        InputStream stream;
+
+        if (content == "") {
+            stream = InputStream.nullInputStream();
+        }
+        else {
+            stream = new ByteArrayInputStream(content.getBytes());
+        }
 
         try {
-            s3Service.uploadObject(key, type, InputStream.nullInputStream());
+            s3Service.uploadObject(key, type, stream);
             jo.put("status", "success");
             jo.put("message", "The file has been successfully created.");
         } catch (Exception e) {
@@ -141,6 +152,23 @@ public class S3Controller {
         } catch (Exception e) {
             jo.put("status", "error");
             jo.put("message", "Error when creating the folder: " + e.getMessage());
+        }
+
+        return jo.toString();
+    }
+
+    @GetMapping("{userName}/getFile")
+    public String getFile(@PathVariable String userName, @RequestParam String key) {
+        AuthenticationUtil.authorizeUser(userName);
+        JSONObject jo = new JSONObject();
+        
+        try {
+            byte[] bytes = s3Service.getObject(key);
+            jo.put("status", "success");
+            jo.put("content", new String(bytes, StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            jo.put("status", "error");
+            jo.put("message", "Error when getting the file: " + e.getMessage());
         }
 
         return jo.toString();
