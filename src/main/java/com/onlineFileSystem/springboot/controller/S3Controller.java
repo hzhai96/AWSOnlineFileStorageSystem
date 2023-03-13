@@ -25,7 +25,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 @RestController
 @RequestMapping("/users")
 @Slf4j
-@CrossOrigin("http://3.210.232.113:3030")
+@CrossOrigin("http://3.210.232.113:3000")
 public class S3Controller {
     
     @Autowired

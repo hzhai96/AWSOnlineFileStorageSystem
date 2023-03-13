@@ -13,7 +13,7 @@ import java.util.Map;
 
 
 @RestController
-@CrossOrigin("http://3.210.232.113:3030")
+@CrossOrigin("http://3.210.232.113:3000")
 public class UserController {
 
     @Autowired
